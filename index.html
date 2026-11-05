@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UG CampusWealth Engine</title>
+    <!-- Chart.js for dynamic visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --ug-blue: #002147;
+            --ug-gold: #D4AF37;
+            --bg-gray: #f4f6f9;
+            --card-white: #ffffff;
+            --text-dark: #333333;
+            --danger-red: #dc3545;
+            --success-green: #28a745;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-gray); color: var(--text-dark); line-height: 1.6; }
+
+        /* Header Navigation */
+        header { background-color: var(--ug-blue); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; sticky; top: 0; z-index: 100; }
+        header h1 { color: var(--ug-gold); font-size: 1.4rem; }
+        nav button { background: none; border: none; color: white; padding: 0.5rem 1rem; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+        nav button.active { border-bottom: 2px solid var(--ug-gold); color: var(--ug-gold); }
+
+        /* Hero Banner */
+        .hero { background: linear-gradient(135deg, #002147 0%, #0a3161 100%); color: white; text-align: center; padding: 2.5rem 1rem; }
+        .hero h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .hero p { color: #d0d8e5; font-size: 0.95rem; }
+
+        /* Container Layout */
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* Grid Cards */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        
+        .card { background: var(--card-white); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .card h3 { color: var(--ug-blue); margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 2px solid var(--bg-gray); padding-bottom: 0.5rem; }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+        .btn-submit { width: 100%; background-color: var(--ug-blue); color: white; border: none; padding: 0.75rem; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 0.5rem; }
+        .btn-submit:hover { background-color: #001733; }
+
+        /* Analytics Visuals */
+        .metric-badge { padding: 0.5rem; border-radius: 4px; text-align: center; font-weight: bold; margin-bottom: 1rem; }
+        .runway-alert { color: var(--danger-red); font-weight: bold; font-size: 0.95rem; margin-top: 0.5rem; }
+
+        /* Vendor Directory Cards */
+        .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+        .food-card { border: 1px solid #e0e0e0; border-radius: 6px; padding: 1rem; background: #fafafa; }
+        .food-card .price { font-weight: bold; color: var(--success-green); }
+
+        /* Research Section */
+        .research-box { background: var(--ug-blue); color: white; border-radius: 8px; padding: 1.5rem; }
+        .research-box h3 { color: var(--ug-gold); margin-bottom: 1rem; }
+        .research-box ul { margin-left: 1.2rem; }
+        .research-box li { margin-bottom: 0.5rem; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <h1>UG CampusWealth Engine</h1>
+        <nav>
+            <button class="nav-btn active" onclick="switchView('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="switchView('food')">Food Directory</button>
+            <button class="nav-btn" onclick="switchView('research')">Research Insights</button>
+        </nav>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero">
+        <h2>Data-Driven Campus Spending & Optimization</h2>
+        <p>Built specifically for University of Ghana undergrads based on empirical spending research (n=50)</p>
+    </section>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- VIEW 1: DASHBOARD -->
+        <div id="view-dashboard" class="view-section active">
+            <div class="grid-2">
+                <!-- User Input Form -->
+                <div class="card">
+                    <h3>1. Enter Weekly Financial Inputs</h3>
+                    <div class="form-group">
+                        <label>Residency Status</label>
+                        <select id="residency">
+                            <option value="residential">Residential (On-Campus)</option>
+                            <option value="commuter">Commuter (Off-Campus)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Weekly Allowance / Income (GH¢)</label>
+                        <input type="number" id="income" value="200">
+                    </div>
+                    <div class="form-group">
+                        <label>Weekly Food & Meals (GH¢)</label>
+                        <input type="number" id="exp-food" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Weekly Transportation (GH¢)</label>
+                        <input type="number" id="exp-transport" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Data & Internet (GH¢)</label>
+                        <input type="number" id="exp-data" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Discretionary / Misc Spending (GH¢)</label>
+                        <input type="number" id="exp-misc" value="20">
+                    </div>
+                    <button class="btn-submit" onclick="calculateAnalytics()">Calculate Financial Health</button>
+                </div>
+
+                <!-- Output & Analytics -->
+                <div class="card">
+                    <h3>2. Dynamic Risk & Benchmark Analytics</h3>
+                    <div id="stress-indicator" class="metric-badge" style="background:#e0e0e0;">
+                        Essential Spending Ratio: --%
+                    </div>
+                    <div id="runway-text" class="runway-alert">
+                        Runway Status: Enter inputs to compute financial runway.
+                    </div>
+                    <div style="margin-top: 1.5rem; height: 220px;">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: FOOD DIRECTORY -->
+        <div id="view-food" class="view-section">
+            <div class="card">
+                <h3>3. Campus Vendor Directory & Meal Matcher</h3>
+                <div class="grid-2" style="margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Max Meal Price (GH¢)</label>
+                        <input type="number" id="meal-filter-price" value="20" oninput="renderFoodList()">
+                    </div>
+                    <div class="form-group">
+                        <label>Filter by Campus Zone</label>
+                        <select id="meal-filter-zone" onchange="renderFoodList()">
+                            <option value="all">All Zones</option>
+                            <option value="Bush Canteen">Bush Canteen</option>
+                            <option value="Night Market">Night Market</option>
+                            <option value="Sarbah Park">Sarbah Park</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="food-container" class="food-grid"></div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: RESEARCH INSIGHTS -->
+        <div id="view-research" class="view-section">
+            <div class="research-box">
+                <h3>4. Empirical Research Foundations (UG Dataset n=50)</h3>
+                <ul>
+                    <li><strong>Mid-Week Depletion Rate:</strong> 74.0% of UG students experience financial exhaustion before the end of the week.</li>
+                    <li><strong>Transport Asymmetry:</strong> Off-campus commuters spend a median of 27.3% of their weekly budget on transport vs. 12.1% for residential students.</li>
+                    <li><strong>Food Dominance:</strong> Food represents the single largest daily expenditure, claiming 50.9% of total student funds.</li>
+                    <li><strong>Primary Driver:</strong> 40.0% of students cite "managing money properly" as their single biggest challenge.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Sample Vendor Database
+        const campusMeals = [
+            { name: "Gob3 + Plantain + Egg", zone: "Bush Canteen", price: 12 },
+            { name: "Fried Rice & Chicken", zone: "Night Market", price: 25 },
+            { name: "Waakye + Fish + Wele", zone: "Sarbah Park", price: 15 },
+            { name: "Jollof Rice + Beef", zone: "Bush Canteen", price: 18 },
+            { name: "Beans & Plantain (Half Portion)", zone: "Night Market", price: 10 },
+            { name: "Indomie Special + Egg", zone: "Sarbah Park", price: 14 }
+        ];
+
+        let chartInstance = null;
+
+        // View Switcher Function
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('view-' + viewName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Analytics Calculator Function
+        function calculateAnalytics() {
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const food = parseFloat(document.getElementById('exp-food').value) || 0;
+            const transport = parseFloat(document.getElementById('exp-transport').value) || 0;
+            const data = parseFloat(document.getElementById('exp-data').value) || 0;
+            const misc = parseFloat(document.getElementById('exp-misc').value) || 0;
+
+            const totalSpent = food + transport + data + misc;
+            const essentialSpent = food + transport;
+            const essentialRatio = income > 0 ? ((essentialSpent / income) * 100).toFixed(1) : 0;
+            
+            // Financial Stress Indicator
+            const stressBox = document.getElementById('stress-indicator');
+            if (essentialRatio > 70) {
+                stressBox.style.backgroundColor = '#f8d7da';
+                stressBox.style.color = '#721c24';
+                stressBox.innerHTML = `🔴 High Financial Stress Index: ${essentialRatio}% (Essentials > 70%)`;
+            } else if (essentialRatio > 50) {
+                stressBox.style.backgroundColor = '#fff3cd';
+                stressBox.style.color = '#856404';
+                stressBox.innerHTML = `🟡 Moderate Financial Risk: ${essentialRatio}% Essential Allocation`;
+            } else {
+                stressBox.style.backgroundColor = '#d4edda';
+                stressBox.style.color = '#155724';
+                stressBox.innerHTML = `🟢 Safe Spending Health: ${essentialRatio}% Essential Ratio`;
+            }
+
+            // Runway Calculator
+            const dailyBurn = totalSpent / 7;
+            const remainingBalance = income - totalSpent;
+            const safeDays = dailyBurn > 0 ? (income / dailyBurn).toFixed(1) : 7;
+            
+            document.getElementById('runway-text').innerHTML = safeDays < 7 
+                ? `⚠️ Burn Rate Warning: Current spending rate will exhaust your funds in ~${safeDays} days!`
+                : `✅ Sustainable Pace: Your income covers a full 7-day period.`;
+
+            // Update Chart.js
+            updateChart(food, transport, data, misc);
+        }
+
+        // Chart.js Visual Rendering
+        function updateChart(food, transport, data, misc) {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Food', 'Transport', 'Data', 'Misc'],
+                    datasets: [{
+                        data: [food, transport, data, misc],
+                        backgroundColor: ['#002147', '#D4AF37', '#17a2b8', '#6c757d']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        // Render Food Directory Items
+        function renderFoodList() {
+            const maxPrice = parseFloat(document.getElementById('meal-filter-price').value) || 999;
+            const selectedZone = document.getElementById('meal-filter-zone').value;
+            const container = document.getElementById('food-container');
+            container.innerHTML = '';
+
+            const filtered = campusMeals.filter(m => m.price <= maxPrice && (selectedZone === 'all' || m.zone === selectedZone));
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="font-size:0.9rem; color:#666;">No campus meals found within this price range and zone.</p>';
+                return;
+            }
+
+            filtered.forEach(meal => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                card.innerHTML = `
+                    <h4>${meal.name}</h4>
+                    <p style="font-size:0.8rem; color:#666;">Location: ${meal.zone}</p>
+                    <p class="price">GH¢ ${meal.price.toFixed(2)}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Initialize App on Load
+        window.onload = function() {
+            calculateAnalytics();
+            renderFoodList();
+        };
+    </script>
+</body>
+</html>
